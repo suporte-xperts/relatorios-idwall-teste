@@ -322,8 +322,8 @@
                 <script>
                     window.analyticsData = {
   "metadata": {
-    "generatedAt": "2025-07-29T19:49:47.528Z",
-    "generatedAtBR": "29/07/2025 16:49:47",
+    "generatedAt": "2025-07-29T20:03:54.132Z",
+    "generatedAtBR": "29/07/2025 17:03:54",
     "version": "2.0.0",
     "features": [
       "Nomes amigáveis dos campos",
@@ -419,15 +419,15 @@
           "errorRate": "25.0"
         },
         {
-          "fieldName": "cpf",
-          "friendlyName": "CPF",
+          "fieldName": "mother_name",
+          "friendlyName": "Nome da Mãe",
           "occurrences": 8,
           "errors": 2,
           "errorRate": "25.0"
         },
         {
-          "fieldName": "mother_name",
-          "friendlyName": "Nome da Mãe",
+          "fieldName": "cpf",
+          "friendlyName": "CPF",
           "occurrences": 8,
           "errors": 2,
           "errorRate": "25.0"
@@ -471,18 +471,18 @@
       "errorRate": "31.6",
       "fields": [
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão",
-          "occurrences": 6,
-          "errors": 4,
-          "errorRate": "66.7"
-        },
-        {
           "fieldName": "issuer_city",
           "friendlyName": "Local de Emissão",
           "occurrences": 5,
           "errors": 4,
           "errorRate": "80.0"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão",
+          "occurrences": 6,
+          "errors": 4,
+          "errorRate": "66.7"
         },
         {
           "fieldName": "issue_date",
@@ -592,14 +592,17 @@
       ]
     },
     {
-      "field": "issuer_state",
-      "friendlyName": "Estado de Emissão",
+      "field": "issuer_city",
+      "friendlyName": "Local de Emissão",
       "category": "Informações de Emissão",
-      "documentType": "CNH",
+      "documentType": [
+        "RG",
+        "CRLV"
+      ],
       "deprecated": false,
-      "totalOccurrences": 6,
+      "totalOccurrences": 5,
       "totalErrors": 4,
-      "errorRate": 66.7,
+      "errorRate": 80,
       "errorsDetail": [
         {
           "error": "not-present",
@@ -619,17 +622,14 @@
       ]
     },
     {
-      "field": "issuer_city",
-      "friendlyName": "Local de Emissão",
+      "field": "issuer_state",
+      "friendlyName": "Estado de Emissão",
       "category": "Informações de Emissão",
-      "documentType": [
-        "RG",
-        "CRLV"
-      ],
+      "documentType": "CNH",
       "deprecated": false,
-      "totalOccurrences": 5,
+      "totalOccurrences": 6,
       "totalErrors": 4,
-      "errorRate": 80,
+      "errorRate": 66.7,
       "errorsDetail": [
         {
           "error": "not-present",
@@ -693,13 +693,12 @@
       ]
     },
     {
-      "field": "cpf",
-      "friendlyName": "CPF",
+      "field": "mother_name",
+      "friendlyName": "Nome da Mãe",
       "category": "Dados Pessoais",
       "documentType": [
         "CNH",
-        "RG",
-        "CRNM"
+        "RG"
       ],
       "deprecated": false,
       "totalOccurrences": 8,
@@ -714,12 +713,13 @@
       ]
     },
     {
-      "field": "mother_name",
-      "friendlyName": "Nome da Mãe",
+      "field": "cpf",
+      "friendlyName": "CPF",
       "category": "Dados Pessoais",
       "documentType": [
         "CNH",
-        "RG"
+        "RG",
+        "CRNM"
       ],
       "deprecated": false,
       "totalOccurrences": 8,
@@ -778,6 +778,23 @@
       ]
     },
     {
+      "field": "register_number",
+      "friendlyName": "Número de Registro",
+      "category": "Identificação",
+      "documentType": "RG",
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 1,
+      "errorRate": 20,
+      "errorsDetail": [
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
       "field": "expiration_date",
       "friendlyName": "Validade",
       "category": "Informações de Emissão",
@@ -813,23 +830,6 @@
       "errorsDetail": [
         {
           "error": "invalid-side",
-          "count": 1,
-          "percentage": "100.0"
-        }
-      ]
-    },
-    {
-      "field": "register_number",
-      "friendlyName": "Número de Registro",
-      "category": "Identificação",
-      "documentType": "RG",
-      "deprecated": false,
-      "totalOccurrences": 5,
-      "totalErrors": 1,
-      "errorRate": 20,
-      "errorsDetail": [
-        {
-          "error": "unreadable",
           "count": 1,
           "percentage": "100.0"
         }
@@ -908,14 +908,17 @@
       ]
     },
     {
-      "field": "issuer_state",
-      "friendlyName": "Estado de Emissão",
+      "field": "issuer_city",
+      "friendlyName": "Local de Emissão",
       "category": "Informações de Emissão",
-      "documentType": "CNH",
+      "documentType": [
+        "RG",
+        "CRLV"
+      ],
       "deprecated": false,
-      "totalOccurrences": 6,
+      "totalOccurrences": 5,
       "totalErrors": 4,
-      "errorRate": 66.7,
+      "errorRate": 80,
       "errorsDetail": [
         {
           "error": "not-present",
@@ -935,17 +938,14 @@
       ]
     },
     {
-      "field": "issuer_city",
-      "friendlyName": "Local de Emissão",
+      "field": "issuer_state",
+      "friendlyName": "Estado de Emissão",
       "category": "Informações de Emissão",
-      "documentType": [
-        "RG",
-        "CRLV"
-      ],
+      "documentType": "CNH",
       "deprecated": false,
-      "totalOccurrences": 5,
+      "totalOccurrences": 6,
       "totalErrors": 4,
-      "errorRate": 80,
+      "errorRate": 66.7,
       "errorsDetail": [
         {
           "error": "not-present",
@@ -1009,13 +1009,12 @@
       ]
     },
     {
-      "field": "cpf",
-      "friendlyName": "CPF",
+      "field": "mother_name",
+      "friendlyName": "Nome da Mãe",
       "category": "Dados Pessoais",
       "documentType": [
         "CNH",
-        "RG",
-        "CRNM"
+        "RG"
       ],
       "deprecated": false,
       "totalOccurrences": 8,
@@ -1030,12 +1029,13 @@
       ]
     },
     {
-      "field": "mother_name",
-      "friendlyName": "Nome da Mãe",
+      "field": "cpf",
+      "friendlyName": "CPF",
       "category": "Dados Pessoais",
       "documentType": [
         "CNH",
-        "RG"
+        "RG",
+        "CRNM"
       ],
       "deprecated": false,
       "totalOccurrences": 8,
@@ -1094,14 +1094,10 @@
       ]
     },
     {
-      "field": "expiration_date",
-      "friendlyName": "Validade",
-      "category": "Informações de Emissão",
-      "documentType": [
-        "RG",
-        "CRNM",
-        "Passaporte"
-      ],
+      "field": "register_number",
+      "friendlyName": "Número de Registro",
+      "category": "Identificação",
+      "documentType": "RG",
       "deprecated": false,
       "totalOccurrences": 5,
       "totalErrors": 1,
@@ -1125,36 +1121,36 @@
           "friendlyName": "Nome"
         },
         {
-          "fieldName": "cpf",
-          "friendlyName": "CPF"
-        },
-        {
           "fieldName": "mother_name",
           "friendlyName": "Nome da Mãe"
+        },
+        {
+          "fieldName": "cpf",
+          "friendlyName": "CPF"
         },
         {
           "fieldName": "birth_date",
           "friendlyName": "Data de Nascimento"
         },
         {
-          "fieldName": "father_name",
-          "friendlyName": "Nome do Pai"
-        },
-        {
           "fieldName": "issue_date",
           "friendlyName": "Data de Expedição"
         },
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão"
+          "fieldName": "rg",
+          "friendlyName": "RG"
         },
         {
           "fieldName": "issuer_city",
           "friendlyName": "Local de Emissão"
         },
         {
-          "fieldName": "rg",
-          "friendlyName": "RG"
+          "fieldName": "father_name",
+          "friendlyName": "Nome do Pai"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
         },
         {
           "fieldName": "birth_city",
@@ -1177,28 +1173,28 @@
       "count": 6,
       "fieldsAffected": [
         {
-          "fieldName": "expiration_date",
-          "friendlyName": "Validade"
-        },
-        {
           "fieldName": "issue_date",
           "friendlyName": "Data de Expedição"
         },
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão"
-        },
-        {
-          "fieldName": "issuer_city",
-          "friendlyName": "Local de Emissão"
+          "fieldName": "register_number",
+          "friendlyName": "Número de Registro"
         },
         {
           "fieldName": "rg",
           "friendlyName": "RG"
         },
         {
-          "fieldName": "register_number",
-          "friendlyName": "Número de Registro"
+          "fieldName": "expiration_date",
+          "friendlyName": "Validade"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
         }
       ]
     },
@@ -1207,12 +1203,12 @@
       "count": 4,
       "fieldsAffected": [
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão"
-        },
-        {
           "fieldName": "issuer_city",
           "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
         }
       ]
     }
@@ -1227,36 +1223,36 @@
           "friendlyName": "Nome"
         },
         {
-          "fieldName": "cpf",
-          "friendlyName": "CPF"
-        },
-        {
           "fieldName": "mother_name",
           "friendlyName": "Nome da Mãe"
+        },
+        {
+          "fieldName": "cpf",
+          "friendlyName": "CPF"
         },
         {
           "fieldName": "birth_date",
           "friendlyName": "Data de Nascimento"
         },
         {
-          "fieldName": "father_name",
-          "friendlyName": "Nome do Pai"
-        },
-        {
           "fieldName": "issue_date",
           "friendlyName": "Data de Expedição"
         },
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão"
+          "fieldName": "rg",
+          "friendlyName": "RG"
         },
         {
           "fieldName": "issuer_city",
           "friendlyName": "Local de Emissão"
         },
         {
-          "fieldName": "rg",
-          "friendlyName": "RG"
+          "fieldName": "father_name",
+          "friendlyName": "Nome do Pai"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
         },
         {
           "fieldName": "birth_city",
@@ -1279,28 +1275,28 @@
       "count": 6,
       "fieldsAffected": [
         {
-          "fieldName": "expiration_date",
-          "friendlyName": "Validade"
-        },
-        {
           "fieldName": "issue_date",
           "friendlyName": "Data de Expedição"
         },
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão"
-        },
-        {
-          "fieldName": "issuer_city",
-          "friendlyName": "Local de Emissão"
+          "fieldName": "register_number",
+          "friendlyName": "Número de Registro"
         },
         {
           "fieldName": "rg",
           "friendlyName": "RG"
         },
         {
-          "fieldName": "register_number",
-          "friendlyName": "Número de Registro"
+          "fieldName": "expiration_date",
+          "friendlyName": "Validade"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
         }
       ]
     },
@@ -1309,12 +1305,12 @@
       "count": 4,
       "fieldsAffected": [
         {
-          "fieldName": "issuer_state",
-          "friendlyName": "Estado de Emissão"
-        },
-        {
           "fieldName": "issuer_city",
           "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
         }
       ]
     }
@@ -1338,14 +1334,17 @@
       ]
     },
     {
-      "fieldName": "issuer_state",
-      "friendlyName": "Estado de Emissão",
+      "fieldName": "issuer_city",
+      "friendlyName": "Local de Emissão",
       "category": "Informações de Emissão",
-      "documentType": "CNH",
+      "documentType": [
+        "RG",
+        "CRLV"
+      ],
       "deprecated": false,
-      "totalOccurrences": 6,
+      "totalOccurrences": 5,
       "totalErrors": 4,
-      "errorRate": 66.7,
+      "errorRate": 80,
       "errors": [
         {
           "error": "not-present",
@@ -1365,17 +1364,14 @@
       ]
     },
     {
-      "fieldName": "issuer_city",
-      "friendlyName": "Local de Emissão",
+      "fieldName": "issuer_state",
+      "friendlyName": "Estado de Emissão",
       "category": "Informações de Emissão",
-      "documentType": [
-        "RG",
-        "CRLV"
-      ],
+      "documentType": "CNH",
       "deprecated": false,
-      "totalOccurrences": 5,
+      "totalOccurrences": 6,
       "totalErrors": 4,
-      "errorRate": 80,
+      "errorRate": 66.7,
       "errors": [
         {
           "error": "not-present",
