@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Visualizador de Relatórios de Extração</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #6500FF 0%, #4500BA 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6500FF 0%, #4500BA 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .header .logo img {
+            height: 45px;
+            filter: brightness(0) invert(1);
+        }
+
+        .header .logo div {
+            text-align: left;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin: 5px 0 0 0;
+            line-height: 1.3;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .file-input {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            border-color: #6500FF;
+            background: #f8f4ff;
+        }
+
+        .file-input input {
+            display: none;
+        }
+
+        .file-input label {
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #6c757d;
+            display: block;
+        }
+
+        .file-input label:hover {
+            color: #6500FF;
+        }
+
+        .json-files {
+            background: #f8f4ff;
+            border: 1px solid #e0d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .json-files h3 {
+            color: #6500FF;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .json-files-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+        }
+
+        .json-file-item {
+            background: white;
+            border: 1px solid #e0d4ff;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .json-file-item:hover {
+            background: #6500FF;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(101, 0, 255, 0.2);
+        }
+
+        .json-file-item .file-info {
+            flex: 1;
+        }
+
+        .json-file-item .file-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .json-file-item .file-date {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #6500FF 0%, #4500BA 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(101, 0, 255, 0.2);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(101, 0, 255, 0.3);
+        }
+
+        .summary-card.success {
+            background: linear-gradient(135deg, #00CEEB 0%, #00A0B4 100%);
+        }
+
+        .summary-card.error {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+
+        .summary-card.invalid {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+
+        .summary-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 50px;
+        }
+
+        .metadata {
+            background: #f8f4ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 4px solid #6500FF;
+        }
+
+        .metadata h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .metadata p {
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 992px) and (min-width: 769px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .header .logo img {
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-cards {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header .logo {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .header .logo div {
+                text-align: center;
+            }
+
+            .header .logo img {
+                height: 35px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .header p {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+
+                <script>
+                    window.analyticsData = {
+  "metadata": {
+    "generatedAt": "2025-07-29T19:49:47.528Z",
+    "generatedAtBR": "29/07/2025 16:49:47",
+    "version": "2.0.0",
+    "features": [
+      "Nomes amigáveis dos campos",
+      "Análise por tipo de documento",
+      "Detecção de campos depreciados",
+      "Categorização de campos"
+    ]
+  },
+  "summary": {
+    "totalExtractions": 10,
+    "successfulExtractions": 1,
+    "failedExtractions": 7,
+    "invalidDocuments": 2,
+    "uniqueFields": 16,
+    "deprecatedFieldsFound": 0,
+    "successRate": "10.0",
+    "failureRate": "70.0",
+    "invalidRate": "20.0"
+  },
+  "extractionDistribution": [
+    {
+      "category": "Bem-sucedidas",
+      "count": 1,
+      "color": "#10B981"
+    },
+    {
+      "category": "Com Falha",
+      "count": 7,
+      "color": "#EF4444"
+    },
+    {
+      "category": "Documentos Inválidos",
+      "count": 2,
+      "color": "#F59E0B"
+    }
+  ],
+  "documentTypeAnalysis": [
+    {
+      "documentType": "RG",
+      "friendlyName": "Registro Geral",
+      "total": 5,
+      "successful": 0,
+      "failed": 5,
+      "invalid": 0,
+      "successRate": "0.0",
+      "extractionIds": {
+        "successful": [],
+        "failed": [
+          "5d89cbfd-5d38-449a-b3b8-1c51f8d1338f",
+          "db67c8bf-99d9-4c8b-931f-90f177e787c6",
+          "0acfe342-4dfa-4327-9d30-7def389e33ef",
+          "c49f7441-905b-4498-b1e7-272447a0438d",
+          "aea26d63-ef0a-459a-b7b2-3005a5116cd7"
+        ],
+        "invalid": []
+      }
+    },
+    {
+      "documentType": "CNH",
+      "friendlyName": "Carteira Nacional de Habilitação",
+      "total": 3,
+      "successful": 1,
+      "failed": 2,
+      "invalid": 0,
+      "successRate": "33.3",
+      "extractionIds": {
+        "successful": [
+          "33ff3333-b339-4dc2-b5dd-39637fae41e1"
+        ],
+        "failed": [
+          "a390bf01-2b39-4990-b398-e5a491d2e869",
+          "6ea5ee25-d5f3-4c1c-ac67-3bd7270765e2"
+        ],
+        "invalid": []
+      }
+    }
+  ],
+  "deprecatedFieldsAnalysis": [],
+  "categoryAnalysis": [
+    {
+      "category": "Dados Pessoais",
+      "description": "Informações pessoais do portador",
+      "totalFields": 7,
+      "totalOccurrences": 45,
+      "totalErrors": 12,
+      "errorRate": "26.7",
+      "fields": [
+        {
+          "fieldName": "name",
+          "friendlyName": "Nome",
+          "occurrences": 8,
+          "errors": 2,
+          "errorRate": "25.0"
+        },
+        {
+          "fieldName": "cpf",
+          "friendlyName": "CPF",
+          "occurrences": 8,
+          "errors": 2,
+          "errorRate": "25.0"
+        },
+        {
+          "fieldName": "mother_name",
+          "friendlyName": "Nome da Mãe",
+          "occurrences": 8,
+          "errors": 2,
+          "errorRate": "25.0"
+        },
+        {
+          "fieldName": "birth_date",
+          "friendlyName": "Data de Nascimento",
+          "occurrences": 8,
+          "errors": 2,
+          "errorRate": "25.0"
+        },
+        {
+          "fieldName": "rg",
+          "friendlyName": "RG",
+          "occurrences": 6,
+          "errors": 2,
+          "errorRate": "33.3"
+        },
+        {
+          "fieldName": "father_name",
+          "friendlyName": "Nome do Pai",
+          "occurrences": 6,
+          "errors": 1,
+          "errorRate": "16.7"
+        },
+        {
+          "fieldName": "birth_city",
+          "friendlyName": "Naturalidade",
+          "occurrences": 1,
+          "errors": 1,
+          "errorRate": "100.0"
+        }
+      ]
+    },
+    {
+      "category": "Informações de Emissão",
+      "description": "Dados sobre emissão do documento",
+      "totalFields": 7,
+      "totalOccurrences": 38,
+      "totalErrors": 12,
+      "errorRate": "31.6",
+      "fields": [
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão",
+          "occurrences": 6,
+          "errors": 4,
+          "errorRate": "66.7"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão",
+          "occurrences": 5,
+          "errors": 4,
+          "errorRate": "80.0"
+        },
+        {
+          "fieldName": "issue_date",
+          "friendlyName": "Data de Expedição",
+          "occurrences": 6,
+          "errors": 3,
+          "errorRate": "50.0"
+        },
+        {
+          "fieldName": "expiration_date",
+          "friendlyName": "Validade",
+          "occurrences": 5,
+          "errors": 1,
+          "errorRate": "20.0"
+        },
+        {
+          "fieldName": "rg_issuer",
+          "friendlyName": "Órgão Emissor RG",
+          "occurrences": 5,
+          "errors": 0,
+          "errorRate": "0.0"
+        },
+        {
+          "fieldName": "issuer",
+          "friendlyName": "Órgão Emissor",
+          "occurrences": 6,
+          "errors": 0,
+          "errorRate": "0.0"
+        },
+        {
+          "fieldName": "rg_issuer_state",
+          "friendlyName": "Estado Emissão RG",
+          "occurrences": 5,
+          "errors": 0,
+          "errorRate": "0.0"
+        }
+      ]
+    },
+    {
+      "category": "Validação de Qualidade",
+      "description": "Validações de confiança e qualidade da extração",
+      "totalFields": 1,
+      "totalOccurrences": 6,
+      "totalErrors": 6,
+      "errorRate": "100.0",
+      "fields": [
+        {
+          "fieldName": "confianca_lado_back",
+          "friendlyName": "Confiança do Lado Verso",
+          "occurrences": 6,
+          "errors": 6,
+          "errorRate": "100.0"
+        }
+      ]
+    },
+    {
+      "category": "Identificação",
+      "description": "Números e códigos de identificação",
+      "totalFields": 1,
+      "totalOccurrences": 5,
+      "totalErrors": 1,
+      "errorRate": "20.0",
+      "fields": [
+        {
+          "fieldName": "register_number",
+          "friendlyName": "Número de Registro",
+          "occurrences": 5,
+          "errors": 1,
+          "errorRate": "20.0"
+        }
+      ]
+    }
+  ],
+  "sideConfidenceAnalysis": [
+    {
+      "side": "Verso",
+      "fieldName": "confianca_lado_back",
+      "friendlyName": "Confiança do Lado back",
+      "occurrences": 6,
+      "errors": 6,
+      "errorRate": "100.0",
+      "errorDetails": [
+        {
+          "errorType": "baixa-confianca-back",
+          "count": 6,
+          "description": "Confiança inferior a 80%"
+        }
+      ]
+    }
+  ],
+  "fieldErrorStats": [
+    {
+      "field": "confianca_lado_back",
+      "friendlyName": "Confiança do Lado back",
+      "category": "Validação de Qualidade",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 6,
+      "errorRate": 100,
+      "errorsDetail": [
+        {
+          "error": "baixa-confianca-back",
+          "count": 6,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "issuer_state",
+      "friendlyName": "Estado de Emissão",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 4,
+      "errorRate": 66.7,
+      "errorsDetail": [
+        {
+          "error": "not-present",
+          "count": 2,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "25.0"
+        },
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "25.0"
+        }
+      ]
+    },
+    {
+      "field": "issuer_city",
+      "friendlyName": "Local de Emissão",
+      "category": "Informações de Emissão",
+      "documentType": [
+        "RG",
+        "CRLV"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 4,
+      "errorRate": 80,
+      "errorsDetail": [
+        {
+          "error": "not-present",
+          "count": 2,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "25.0"
+        },
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "25.0"
+        }
+      ]
+    },
+    {
+      "field": "issue_date",
+      "friendlyName": "Data de Expedição",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 3,
+      "errorRate": 50,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "66.7"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "33.3"
+        }
+      ]
+    },
+    {
+      "field": "name",
+      "friendlyName": "Nome",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "cpf",
+      "friendlyName": "CPF",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "mother_name",
+      "friendlyName": "Nome da Mãe",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "birth_date",
+      "friendlyName": "Data de Nascimento",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "rg",
+      "friendlyName": "RG",
+      "category": "Dados Pessoais",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 2,
+      "errorRate": 33.3,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "50.0"
+        }
+      ]
+    },
+    {
+      "field": "expiration_date",
+      "friendlyName": "Validade",
+      "category": "Informações de Emissão",
+      "documentType": [
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 1,
+      "errorRate": 20,
+      "errorsDetail": [
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "father_name",
+      "friendlyName": "Nome do Pai",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 1,
+      "errorRate": 16.7,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "register_number",
+      "friendlyName": "Número de Registro",
+      "category": "Identificação",
+      "documentType": "RG",
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 1,
+      "errorRate": 20,
+      "errorsDetail": [
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "birth_city",
+      "friendlyName": "Naturalidade",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 1,
+      "totalErrors": 1,
+      "errorRate": 100,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "rg_issuer",
+      "friendlyName": "Órgão Emissor RG",
+      "category": "Informações de Emissão",
+      "documentType": "RG",
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 0,
+      "errorRate": 0,
+      "errorsDetail": []
+    },
+    {
+      "field": "issuer",
+      "friendlyName": "Órgão Emissor",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 0,
+      "errorRate": 0,
+      "errorsDetail": []
+    },
+    {
+      "field": "rg_issuer_state",
+      "friendlyName": "Estado Emissão RG",
+      "category": "Informações de Emissão",
+      "documentType": "RG",
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 0,
+      "errorRate": 0,
+      "errorsDetail": []
+    }
+  ],
+  "topFieldsWithErrors": [
+    {
+      "field": "confianca_lado_back",
+      "friendlyName": "Confiança do Lado back",
+      "category": "Validação de Qualidade",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 6,
+      "errorRate": 100,
+      "errorsDetail": [
+        {
+          "error": "baixa-confianca-back",
+          "count": 6,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "issuer_state",
+      "friendlyName": "Estado de Emissão",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 4,
+      "errorRate": 66.7,
+      "errorsDetail": [
+        {
+          "error": "not-present",
+          "count": 2,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "25.0"
+        },
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "25.0"
+        }
+      ]
+    },
+    {
+      "field": "issuer_city",
+      "friendlyName": "Local de Emissão",
+      "category": "Informações de Emissão",
+      "documentType": [
+        "RG",
+        "CRLV"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 4,
+      "errorRate": 80,
+      "errorsDetail": [
+        {
+          "error": "not-present",
+          "count": 2,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "25.0"
+        },
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "25.0"
+        }
+      ]
+    },
+    {
+      "field": "issue_date",
+      "friendlyName": "Data de Expedição",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 3,
+      "errorRate": 50,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "66.7"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "33.3"
+        }
+      ]
+    },
+    {
+      "field": "name",
+      "friendlyName": "Nome",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "cpf",
+      "friendlyName": "CPF",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "mother_name",
+      "friendlyName": "Nome da Mãe",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "birth_date",
+      "friendlyName": "Data de Nascimento",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "field": "rg",
+      "friendlyName": "RG",
+      "category": "Dados Pessoais",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 2,
+      "errorRate": 33.3,
+      "errorsDetail": [
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "50.0"
+        }
+      ]
+    },
+    {
+      "field": "expiration_date",
+      "friendlyName": "Validade",
+      "category": "Informações de Emissão",
+      "documentType": [
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 1,
+      "errorRate": 20,
+      "errorsDetail": [
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "100.0"
+        }
+      ]
+    }
+  ],
+  "errorTypes": [
+    {
+      "errorType": "invalid-side",
+      "count": 15,
+      "fieldsAffected": [
+        {
+          "fieldName": "name",
+          "friendlyName": "Nome"
+        },
+        {
+          "fieldName": "cpf",
+          "friendlyName": "CPF"
+        },
+        {
+          "fieldName": "mother_name",
+          "friendlyName": "Nome da Mãe"
+        },
+        {
+          "fieldName": "birth_date",
+          "friendlyName": "Data de Nascimento"
+        },
+        {
+          "fieldName": "father_name",
+          "friendlyName": "Nome do Pai"
+        },
+        {
+          "fieldName": "issue_date",
+          "friendlyName": "Data de Expedição"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "rg",
+          "friendlyName": "RG"
+        },
+        {
+          "fieldName": "birth_city",
+          "friendlyName": "Naturalidade"
+        }
+      ]
+    },
+    {
+      "errorType": "baixa-confianca-back",
+      "count": 6,
+      "fieldsAffected": [
+        {
+          "fieldName": "confianca_lado_back",
+          "friendlyName": "Confiança do Lado back"
+        }
+      ]
+    },
+    {
+      "errorType": "unreadable",
+      "count": 6,
+      "fieldsAffected": [
+        {
+          "fieldName": "expiration_date",
+          "friendlyName": "Validade"
+        },
+        {
+          "fieldName": "issue_date",
+          "friendlyName": "Data de Expedição"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "rg",
+          "friendlyName": "RG"
+        },
+        {
+          "fieldName": "register_number",
+          "friendlyName": "Número de Registro"
+        }
+      ]
+    },
+    {
+      "errorType": "not-present",
+      "count": 4,
+      "fieldsAffected": [
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        }
+      ]
+    }
+  ],
+  "topErrorTypes": [
+    {
+      "errorType": "invalid-side",
+      "count": 15,
+      "fieldsAffected": [
+        {
+          "fieldName": "name",
+          "friendlyName": "Nome"
+        },
+        {
+          "fieldName": "cpf",
+          "friendlyName": "CPF"
+        },
+        {
+          "fieldName": "mother_name",
+          "friendlyName": "Nome da Mãe"
+        },
+        {
+          "fieldName": "birth_date",
+          "friendlyName": "Data de Nascimento"
+        },
+        {
+          "fieldName": "father_name",
+          "friendlyName": "Nome do Pai"
+        },
+        {
+          "fieldName": "issue_date",
+          "friendlyName": "Data de Expedição"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "rg",
+          "friendlyName": "RG"
+        },
+        {
+          "fieldName": "birth_city",
+          "friendlyName": "Naturalidade"
+        }
+      ]
+    },
+    {
+      "errorType": "baixa-confianca-back",
+      "count": 6,
+      "fieldsAffected": [
+        {
+          "fieldName": "confianca_lado_back",
+          "friendlyName": "Confiança do Lado back"
+        }
+      ]
+    },
+    {
+      "errorType": "unreadable",
+      "count": 6,
+      "fieldsAffected": [
+        {
+          "fieldName": "expiration_date",
+          "friendlyName": "Validade"
+        },
+        {
+          "fieldName": "issue_date",
+          "friendlyName": "Data de Expedição"
+        },
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        },
+        {
+          "fieldName": "rg",
+          "friendlyName": "RG"
+        },
+        {
+          "fieldName": "register_number",
+          "friendlyName": "Número de Registro"
+        }
+      ]
+    },
+    {
+      "errorType": "not-present",
+      "count": 4,
+      "fieldsAffected": [
+        {
+          "fieldName": "issuer_state",
+          "friendlyName": "Estado de Emissão"
+        },
+        {
+          "fieldName": "issuer_city",
+          "friendlyName": "Local de Emissão"
+        }
+      ]
+    }
+  ],
+  "detailedFieldAnalysis": [
+    {
+      "fieldName": "confianca_lado_back",
+      "friendlyName": "Confiança do Lado back",
+      "category": "Validação de Qualidade",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 6,
+      "errorRate": 100,
+      "errors": [
+        {
+          "error": "baixa-confianca-back",
+          "count": 6,
+          "percentage": "100.0"
+        }
+      ]
+    },
+    {
+      "fieldName": "issuer_state",
+      "friendlyName": "Estado de Emissão",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 4,
+      "errorRate": 66.7,
+      "errors": [
+        {
+          "error": "not-present",
+          "count": 2,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "25.0"
+        },
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "25.0"
+        }
+      ]
+    },
+    {
+      "fieldName": "issuer_city",
+      "friendlyName": "Local de Emissão",
+      "category": "Informações de Emissão",
+      "documentType": [
+        "RG",
+        "CRLV"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 5,
+      "totalErrors": 4,
+      "errorRate": 80,
+      "errors": [
+        {
+          "error": "not-present",
+          "count": 2,
+          "percentage": "50.0"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "25.0"
+        },
+        {
+          "error": "invalid-side",
+          "count": 1,
+          "percentage": "25.0"
+        }
+      ]
+    },
+    {
+      "fieldName": "issue_date",
+      "friendlyName": "Data de Expedição",
+      "category": "Informações de Emissão",
+      "documentType": "CNH",
+      "deprecated": false,
+      "totalOccurrences": 6,
+      "totalErrors": 3,
+      "errorRate": 50,
+      "errors": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "66.7"
+        },
+        {
+          "error": "unreadable",
+          "count": 1,
+          "percentage": "33.3"
+        }
+      ]
+    },
+    {
+      "fieldName": "name",
+      "friendlyName": "Nome",
+      "category": "Dados Pessoais",
+      "documentType": [
+        "CNH",
+        "RG",
+        "CRNM",
+        "Passaporte"
+      ],
+      "deprecated": false,
+      "totalOccurrences": 8,
+      "totalErrors": 2,
+      "errorRate": 25,
+      "errors": [
+        {
+          "error": "invalid-side",
+          "count": 2,
+          "percentage": "100.0"
+        }
+      ]
+    }
+  ],
+  "extractionIds": {
+    "successful": [
+      "33ff3333-b339-4dc2-b5dd-39637fae41e1"
+    ],
+    "failed": [
+      "a390bf01-2b39-4990-b398-e5a491d2e869",
+      "5d89cbfd-5d38-449a-b3b8-1c51f8d1338f",
+      "db67c8bf-99d9-4c8b-931f-90f177e787c6",
+      "6ea5ee25-d5f3-4c1c-ac67-3bd7270765e2",
+      "0acfe342-4dfa-4327-9d30-7def389e33ef",
+      "c49f7441-905b-4498-b1e7-272447a0438d",
+      "aea26d63-ef0a-459a-b7b2-3005a5116cd7"
+    ],
+    "invalid": [
+      "47b7460e-5321-4fdf-a0fd-0419d29c7afb",
+      "a39b087d-d4d9-4e06-86d0-afa9d6e65d42"
+    ]
+  },
+  "chartSuggestions": {
+    "pie": [
+      {
+        "title": "Distribuição de Extrações",
+        "data": "extractionDistribution",
+        "xAxis": "category",
+        "yAxis": "count"
+      },
+      {
+        "title": "Top 5 Tipos de Erros",
+        "data": "topErrorTypes",
+        "xAxis": "errorType",
+        "yAxis": "count"
+      },
+      {
+        "title": "Análise por Tipo de Documento",
+        "data": "documentTypeAnalysis",
+        "xAxis": "friendlyName",
+        "yAxis": "total"
+      }
+    ],
+    "bar": [
+      {
+        "title": "Top 10 Campos com Mais Erros (Nome Amigável)",
+        "data": "topFieldsWithErrors",
+        "xAxis": "friendlyName",
+        "yAxis": "totalErrors"
+      },
+      {
+        "title": "Taxa de Erro por Campo (%)",
+        "data": "topFieldsWithErrors",
+        "xAxis": "friendlyName",
+        "yAxis": "errorRate"
+      },
+      {
+        "title": "Campos Depreciados Mais Usados",
+        "data": "deprecatedFieldsAnalysis",
+        "xAxis": "friendlyName",
+        "yAxis": "occurrences"
+      },
+      {
+        "title": "Taxa de Erro por Categoria",
+        "data": "categoryAnalysis",
+        "xAxis": "category",
+        "yAxis": "errorRate"
+      },
+      {
+        "title": "🚨 Lados com Falhas de Confiança",
+        "data": "sideConfidenceAnalysis",
+        "xAxis": "side",
+        "yAxis": "errors"
+      }
+    ]
+  }
+};
+                </script>
+            </head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="images/Logo idwall- Digital- 2024-01.png" alt="Idwall Logo"
+                    onerror="this.style.display='none'">
+                <div>
+                    <h1>📊 Visualizador de Relatórios</h1>
+                    <p>Análise Visual de Dados de Extração de Campos</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="json-files" id="jsonFilesSection" style="display: none;">
+                <h3>📂 Arquivos JSON Disponíveis</h3>
+                <div class="json-files-list" id="jsonFilesList"></div>
+            </div>
+
+            <div class="file-input">
+                <input type="file" id="fileInput" accept=".json">
+                <label for="fileInput">
+                    📁 Clique aqui para carregar um novo arquivo JSON<br>
+                    <small>(retorno_YYYY__MM__DD__HH__mm.json)</small>
+                </label>
+            </div>
+
+            <div id="dashboardContent" style="display: none;">
+                <div class="summary-cards" id="summaryCards"></div>
+                <div class="charts-grid" id="chartsContainer"></div>
+                <div class="metadata" id="metadata"></div>
+            </div>
+
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Cores padrão para gráficos (Paleta Idwall expandida)
+        const colors = {
+            success: '#00CEEB',
+            error: '#EF4444',
+            invalid: '#F59E0B',
+            primary: '#6500FF',
+            secondary: '#4500BA',
+            purple: '#8B5CF6',
+            blue: '#3B82F6',
+            green: '#10B981',
+            red: '#EF4444',
+            orange: '#F59E0B',
+            pink: '#EC4899',
+            indigo: '#6366F1',
+            teal: '#14B8A6',
+            deprecated: '#DC2626'
+        };
+
+        // Paleta extendida de cores únicas para gráficos
+        const extendedColorPalette = [
+            '#6500FF', // Idwall Purple Primary
+            '#4500BA', // Idwall Purple Secondary
+            '#00CEEB', // Idwall Cyan
+            '#EF4444', // Red
+            '#F59E0B', // Orange
+            '#10B981', // Green
+            '#3B82F6', // Blue
+            '#8B5CF6', // Purple
+            '#EC4899', // Pink
+            '#6366F1', // Indigo
+            '#14B8A6', // Teal
+            '#DC2626', // Dark Red
+            '#7C3AED', // Violet
+            '#2563EB', // Blue-600
+            '#059669', // Green-600
+            '#D97706', // Orange-600
+            '#DC2626', // Red-600
+            '#9333EA', // Purple-600
+            '#0891B2', // Cyan-600
+            '#0D9488', // Teal-600
+            '#4338CA', // Indigo-600
+            '#BE185D', // Pink-600
+            '#7C2D12', // Orange-800
+            '#166534', // Green-800
+            '#1E3A8A', // Blue-800
+            '#581C87', // Purple-800
+            '#991B1B', // Red-800
+            '#164E63', // Cyan-800
+            '#134E4A', // Teal-800
+            '#312E81', // Indigo-800
+            '#831843', // Pink-800
+            '#92400E', // Orange-700
+            '#15803D', // Green-700
+            '#1D4ED8', // Blue-700
+            '#7C3AED', // Purple-700
+            '#B91C1C', // Red-700
+            '#0E7490', // Cyan-700
+            '#0F766E', // Teal-700
+            '#3730A3', // Indigo-700
+            '#BE185D'  // Pink-700
+        ];
+
+        // Função para gerar cores únicas para um gráfico
+        function generateUniqueColors(count) {
+            if (count <= extendedColorPalette.length) {
+                // Se temos cores suficientes, use as primeiras 'count' cores
+                return extendedColorPalette.slice(0, count);
+            } else {
+                // Se precisamos de mais cores, gere cores adicionais
+                const colors = [...extendedColorPalette];
+                for (let i = extendedColorPalette.length; i < count; i++) {
+                    // Gera cores HSL com matizes distribuídos uniformemente
+                    const hue = (i * 137.508) % 360; // Golden angle approximation
+                    const saturation = 65 + (i % 3) * 10; // 65%, 75%, 85%
+                    const lightness = 45 + (i % 4) * 5;   // 45%, 50%, 55%, 60%
+                    colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+                }
+                return colors;
+            }
+        }
+
+        // Configuração global do Chart.js
+        Chart.defaults.font.family = "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif";
+        Chart.defaults.font.size = 12;
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        generateDashboard(data);
+                        document.getElementById('dashboardContent').style.display = 'block';
+                        document.getElementById('errorMessage').style.display = 'none';
+                    } catch (error) {
+                        showError('Erro ao processar arquivo JSON: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('dashboardContent').style.display = 'none';
+        }
+
+        function generateDashboard(data) {
+            generateSummaryCards(data.summary);
+            generateCharts(data);
+            generateMetadata(data.metadata);
+        }
+
+        function generateSummaryCards(summary) {
+            const container = document.getElementById('summaryCards');
+            container.innerHTML = '';
+
+            const cards = [
+                {
+                    title: 'Total Processadas',
+                    value: summary.totalExtractions,
+                    class: 'primary'
+                },
+                {
+                    title: 'Bem-sucedidas',
+                    value: summary.successfulExtractions,
+                    subtitle: `${summary.successRate}%`,
+                    class: 'success'
+                },
+                {
+                    title: 'Com Falha',
+                    value: summary.failedExtractions,
+                    subtitle: `${summary.failureRate}%`,
+                    class: 'error'
+                },
+                {
+                    title: 'Documentos Inválidos',
+                    value: summary.invalidDocuments,
+                    subtitle: `${summary.invalidRate}%`,
+                    class: 'invalid'
+                },
+                {
+                    title: 'Campos Únicos',
+                    value: summary.uniqueFields,
+                    class: 'primary'
+                },
+                {
+                    title: 'Campos Depreciados',
+                    value: summary.deprecatedFieldsFound || 0,
+                    subtitle: '⚠️ Detectados',
+                    class: 'error'
+                }
+            ];
+
+            cards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `summary-card ${card.class}`;
+                cardElement.innerHTML = `
+                    <div class="number">${card.value}</div>
+                    <div class="label">${card.title}</div>
+                    ${card.subtitle ? `<div style="font-size: 0.8rem; margin-top: 5px;">${card.subtitle}</div>` : ''}
+                `;
+                container.appendChild(cardElement);
+            });
+        }
+
+        function generateCharts(data) {
+            const container = document.getElementById('chartsContainer');
+            container.innerHTML = '';
+
+            // 1. Gráfico Pizza - Distribuição de Extrações
+            createPieChart(
+                'Distribuição de Extrações',
+                data.extractionDistribution,
+                'category',
+                'count',
+                container
+            );
+
+            // 2. Gráfico Pizza - Análise por Tipo de Documento (NOVO)
+            if (data.documentTypeAnalysis && data.documentTypeAnalysis.length > 0) {
+                createPieChart(
+                    'Distribuição por Tipo de Documento',
+                    data.documentTypeAnalysis,
+                    'friendlyName',
+                    'total',
+                    container
+                );
+            }
+
+            // 3. Gráfico Barras - Campos com Mais Erros (COM NOMES AMIGÁVEIS)
+            if (data.topFieldsWithErrors && data.topFieldsWithErrors.length > 0) {
+                createBarChart(
+                    'Top 10 Campos com Mais Erros',
+                    data.topFieldsWithErrors,
+                    'friendlyName',
+                    'totalErrors',
+                    container,
+                    colors.error
+                );
+            }
+
+            // 4. Gráfico Barras - Taxa de Sucesso por Tipo de Documento (NOVO)
+            if (data.documentTypeAnalysis && data.documentTypeAnalysis.length > 0) {
+                createBarChart(
+                    'Taxa de Sucesso por Tipo de Documento (%)',
+                    data.documentTypeAnalysis,
+                    'friendlyName',
+                    'successRate',
+                    container,
+                    colors.success,
+                    '%'
+                );
+            }
+
+            // 5. Gráfico Pizza - Tipos de Erros
+            if (data.topErrorTypes && data.topErrorTypes.length > 0) {
+                createPieChart(
+                    'Top 5 Tipos de Erros Mais Frequentes',
+                    data.topErrorTypes.slice(0, 5),
+                    'errorType',
+                    'count',
+                    container
+                );
+            }
+
+            // 6. Gráfico Barras - Campos Depreciados (NOVO)
+            if (data.deprecatedFieldsAnalysis && data.deprecatedFieldsAnalysis.length > 0) {
+                createBarChart(
+                    '⚠️ Campos Depreciados Mais Utilizados',
+                    data.deprecatedFieldsAnalysis,
+                    'friendlyName',
+                    'occurrences',
+                    container,
+                    colors.deprecated
+                );
+            }
+
+            // 7. Gráfico Barras - Taxa de Erro por Categoria (NOVO)
+            if (data.categoryAnalysis && data.categoryAnalysis.length > 0) {
+                createBarChart(
+                    'Taxa de Erro por Categoria de Campo (%)',
+                    data.categoryAnalysis,
+                    'category',
+                    'errorRate',
+                    container,
+                    colors.warning,
+                    '%'
+                );
+            }
+
+            // 8. Gráfico Específico - Lados com Falhas de Confiança (NOVO)
+            if (data.sideConfidenceAnalysis && data.sideConfidenceAnalysis.length > 0) {
+                createSideConfidenceChart(
+                    '🚨 Lados com Falhas de Confiança',
+                    data.sideConfidenceAnalysis,
+                    container
+                );
+            }
+
+            // 9. Gráfico Barras - Taxa de Erro por Campo (COM NOMES AMIGÁVEIS)
+            if (data.topFieldsWithErrors && data.topFieldsWithErrors.length > 0) {
+                createBarChart(
+                    'Taxa de Erro por Campo (%)',
+                    data.topFieldsWithErrors,
+                    'friendlyName',
+                    'errorRate',
+                    container,
+                    colors.invalid,
+                    '%'
+                );
+            }
+        }
+
+        function createPieChart(title, data, labelKey, valueKey, container) {
+            const chartContainer = createChartContainer(title, container);
+
+            if (!data || data.length === 0) {
+                chartContainer.querySelector('.chart-wrapper').innerHTML = '<div class="no-data">Nenhum dado disponível</div>';
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            chartContainer.querySelector('.chart-wrapper').appendChild(canvas);
+
+            const labels = data.map(item => item[labelKey]);
+            const values = data.map(item => item[valueKey]);
+            // Gera cores únicas para este gráfico específico
+            const uniqueColors = generateUniqueColors(data.length);
+            const backgroundColors = data.map((item, index) => item.color || uniqueColors[index]);
+
+            new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 11
+                                },
+                                generateLabels: function (chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        const dataset = data.datasets[0];
+                                        const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                                        return data.labels.map((label, i) => {
+                                            const value = dataset.data[i];
+                                            const percentage = ((value / total) * 100).toFixed(1);
+
+                                            return {
+                                                text: `${label} - ${percentage}%`,
+                                                fillStyle: dataset.backgroundColor[i],
+                                                strokeStyle: dataset.borderColor,
+                                                lineWidth: dataset.borderWidth,
+                                                hidden: isNaN(value),
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createBarChart(title, data, labelKey, valueKey, container, color = colors.primary, suffix = '') {
+            const chartContainer = createChartContainer(title, container);
+
+            if (!data || data.length === 0) {
+                chartContainer.querySelector('.chart-wrapper').innerHTML = '<div class="no-data">Nenhum dado disponível</div>';
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            chartContainer.querySelector('.chart-wrapper').appendChild(canvas);
+
+            const labels = data.map(item => {
+                const label = item[labelKey];
+                return label.length > 15 ? label.substring(0, 15) + '...' : label;
+            });
+            const values = data.map(item => item[valueKey]);
+
+            // Gera cores únicas para múltiplas barras, ou usa cor única para uma única série
+            const uniqueColors = generateUniqueColors(data.length);
+            const backgroundColors = data.length > 1 ? uniqueColors : color;
+            const borderColors = data.length > 1 ? uniqueColors : color;
+
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: values,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.dataset.label}: ${context.parsed.y}${suffix}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f0f0f0'
+                            },
+                            ticks: {
+                                callback: function (value) {
+                                    return value + suffix;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createSideConfidenceChart(title, data, container) {
+            // APENAS CARDS INFORMATIVOS - SEM GRÁFICO!
+            const chartContainer = createChartContainer(title, container);
+
+            if (!data || data.length === 0) {
+                chartContainer.querySelector('.chart-wrapper').innerHTML = '<div class="no-data">✅ Nenhum problema de confiança detectado</div>';
+                return;
+            }
+
+            // VERSÃO COMPACTA - SEM FIRULAS
+            let infoHTML = `
+                <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                    <h3 style="color: #dc2626; margin: 0 0 15px 0; font-size: 1.1rem;">🚨 Lados com Problemas de Confiança</h3>
+            `;
+
+            data.forEach(sideInfo => {
+                const sideIcon = sideInfo.side === 'Frente' ? '📄' : '📃';
+
+                infoHTML += `
+                    <div style="background: white; padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #ef4444;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <strong style="color: #374151;">${sideIcon} Lado ${sideInfo.side}</strong>
+                            <span style="background: #dc2626; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                ${sideInfo.errorRate}% falha
+                            </span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 8px;">
+                            ${sideInfo.errors} erro(s) em ${sideInfo.occurrences} ocorrência(s)
+                        </div>
+                        <div style="font-size: 0.85rem; color: #dc2626; font-weight: 500;">
+                            ${sideInfo.errorDetails.map(detail => `• ${detail.description} (${detail.count}x)`).join('<br>')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            infoHTML += `
+                    <div style="margin-top: 15px; padding: 10px; background: #fee2e2; border-radius: 6px; text-align: center;">
+                        <small style="color: #dc2626; font-weight: 600;">⚠️ Confiança < 80% compromete qualidade</small>
+                    </div>
+                </div>
+            `;
+
+            chartContainer.querySelector('.chart-wrapper').innerHTML = infoHTML;
+
+            // CORREÇÃO TOTAL PARA EVITAR SOBREPOSIÇÃO E VAZAMENTOS
+            const clearDiv = document.createElement('div');
+            clearDiv.style.cssText = `
+                clear: both; 
+                height: 50px; 
+                margin-bottom: 30px; 
+                width: 100%; 
+                display: block; 
+                overflow: hidden;
+                border-bottom: 1px solid transparent;
+            `;
+            chartContainer.querySelector('.chart-wrapper').appendChild(clearDiv);
+
+            // Garantir que o container não vaze
+            chartContainer.style.cssText += '; position: relative; z-index: 1; overflow: hidden; margin-bottom: 50px;';
+        }
+
+        function createChartContainer(title, parentContainer) {
+            const container = document.createElement('div');
+            container.className = 'chart-container';
+            container.innerHTML = `
+                <div class="chart-title">${title}</div>
+                <div class="chart-wrapper"></div>
+            `;
+            parentContainer.appendChild(container);
+            return container;
+        }
+
+        function generateMetadata(metadata) {
+            const container = document.getElementById('metadata');
+            container.innerHTML = `
+                <h3>📋 Informações do Relatório</h3>
+                <p><strong>Gerado em:</strong> ${metadata.generatedAtBR}</p>
+                <p><strong>Versão:</strong> ${metadata.version}</p>
+                <p><strong>Timestamp UTC:</strong> ${metadata.generatedAt}</p>
+            `;
+        }
+
+        function getRandomColor() {
+            // DEPRECADO: Use generateUniqueColors() para evitar repetição de cores
+            console.warn('getRandomColor() está depreciado. Use generateUniqueColors() para cores únicas.');
+            const colorPalette = [
+                '#6500FF', '#4500BA', '#8B5CF6', '#A855F7',
+                '#00CEEB', '#00A0B4', '#EF4444', '#F59E0B',
+                '#10B981', '#059669', '#3B82F6', '#2563EB'
+            ];
+            return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        }
+
+        // Função para listar arquivos JSON disponíveis
+        async function loadAvailableJsonFiles() {
+            try {
+                // Simula busca por arquivos JSON com padrão retorno_
+                const today = new Date();
+                const currentYear = today.getFullYear();
+                const currentMonth = today.getMonth() + 1;
+                const currentDay = today.getDate();
+
+                const possibleFiles = [];
+
+                // Gera possíveis nomes de arquivo para os últimos 7 dias
+                for (let i = 0; i < 7; i++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+
+                    // Tenta várias horas do dia
+                    for (let hour = 23; hour >= 0; hour -= 1) {
+                        for (let minute = 59; minute >= 0; minute -= 15) {
+                            const h = String(hour).padStart(2, '0');
+                            const m = String(minute).padStart(2, '0');
+                            const filename = `retorno_${year}__${month}__${day}__${h}__${m}.json`;
+                            possibleFiles.push({
+                                name: filename,
+                                displayDate: `${day}/${month}/${year} ${h}:${m}`,
+                                sortDate: new Date(year, month - 1, day, hour, minute)
+                            });
+                        }
+                    }
+                }
+
+                // Verifica quais arquivos existem
+                const existingFiles = [];
+                for (const file of possibleFiles.slice(0, 50)) { // Limita a 50 verificações
+                    try {
+                        const response = await fetch(file.name, { method: 'HEAD' });
+                        if (response.ok) {
+                            existingFiles.push(file);
+                        }
+                    } catch (e) {
+                        // Arquivo não existe, continua
+                    }
+                }
+
+                // Ordena por data (mais recente primeiro)
+                existingFiles.sort((a, b) => b.sortDate - a.sortDate);
+
+                if (existingFiles.length > 0) {
+                    displayJsonFiles(existingFiles);
+                }
+            } catch (error) {
+                console.log('Erro ao carregar arquivos JSON:', error);
+            }
+        }
+
+        function displayJsonFiles(files) {
+            const container = document.getElementById('jsonFilesList');
+            const section = document.getElementById('jsonFilesSection');
+
+            container.innerHTML = '';
+
+            files.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'json-file-item';
+                fileElement.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-date">${file.displayDate}</div>
+                    </div>
+                    <div style="margin-left: 10px;">📄</div>
+                `;
+
+                fileElement.addEventListener('click', () => {
+                    loadJsonFile(file.name);
+                });
+
+                container.appendChild(fileElement);
+            });
+
+            section.style.display = 'block';
+        }
+
+        async function loadJsonFile(filename) {
+            try {
+                const response = await fetch(filename);
+                if (response.ok) {
+                    const data = await response.json();
+                    generateDashboard(data);
+                    document.getElementById('dashboardContent').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+
+                    // Destaca o arquivo selecionado
+                    document.querySelectorAll('.json-file-item').forEach(item => {
+                        item.style.background = 'white';
+                        item.style.color = 'inherit';
+                    });
+
+                    const selectedItem = Array.from(document.querySelectorAll('.json-file-item'))
+                        .find(item => item.querySelector('.file-name').textContent === filename);
+                    if (selectedItem) {
+                        selectedItem.style.background = '#6500FF';
+                        selectedItem.style.color = 'white';
+                    }
+                } else {
+                    showError('Arquivo não encontrado: ' + filename);
+                }
+            } catch (error) {
+                showError('Erro ao carregar arquivo: ' + error.message);
+            }
+        }
+
+        // Auto-load do arquivo JSON se estiver no mesmo diretório
+        
+                // Auto-load do arquivo JSON se estiver no mesmo diretório
+                window.addEventListener('load', function () {
+                    if (window.analyticsData) {
+                        // Oculta o input de arquivo e mostra o dashboard
+                        document.querySelector('.file-input').style.display = 'none';
+                        document.getElementById('jsonFilesSection').style.display = 'none';
+                        document.getElementById('dashboardContent').style.display = 'block';
+                        
+                        // Gera o dashboard com os dados injetados
+                        generateDashboard(window.analyticsData);
+                    } else {
+                        // Se não houver dados injetados, mantém o comportamento original
+                        loadAvailableJsonFiles();
+                    }
+                });
+            
+    </script>
+</body>
+
+</html>
